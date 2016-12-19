@@ -316,11 +316,16 @@ static NSHashTable *allAnimatedImagesWeak;
             // We have multiple frames, rock on!
         }
         
+        FLLog(FLLogLevelInfo, @"Submitted optimalFrameCacheSize is %lu", (unsigned long)optimalFrameCacheSize);
+        
         // If no value is provided, select a default based on the GIF.
         if (optimalFrameCacheSize == 0) {
             // Calculate the optimal frame cache size: try choosing a larger buffer window depending on the predicted image size.
             // It's only dependent on the image size & number of frames and never changes.
             CGFloat animatedImageDataSize = CGImageGetBytesPerRow(self.posterImage.CGImage) * self.size.height * (self.frameCount - skippedFrameCount) / MEGABYTE;
+            
+            FLLog(FLLogLevelInfo, @"Calculated image data size is %lu", (unsigned long)animatedImageDataSize);
+            
             if (animatedImageDataSize <= FLAnimatedImageDataSizeCategoryAll) {
                 _frameCacheSizeOptimal = self.frameCount;
             } else if (animatedImageDataSize <= FLAnimatedImageDataSizeCategoryDefault) {
@@ -330,6 +335,9 @@ static NSHashTable *allAnimatedImagesWeak;
                 // The predicted size exceeds the limits to build up a cache and we go into low memory mode from the beginning.
                 _frameCacheSizeOptimal = FLAnimatedImageFrameCacheSizeLowMemory;
             }
+            
+            FLLog(FLLogLevelInfo, @"Calculated optimal cache size %lu", (unsigned long)_frameCacheSizeOptimal);
+            
         } else {
             // Use the provided value.
             _frameCacheSizeOptimal = optimalFrameCacheSize;
